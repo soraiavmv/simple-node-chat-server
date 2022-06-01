@@ -1,0 +1,17 @@
+{
+  "name": "simple-node-chat-application",
+  "version": "0.0.1",
+  "type": "module",
+  "author": "soraiavmv",
+  "scripts": {
+    "server": "node ./src/server/index.js",
+    "client": "node ./src/client/index.js"
+  },
+  "dependencies": {
+    "axios": "^0.27.2",
+    "chalk": "^5.0.1",
+    "express": "^4.18.1",
+    "socket.io": "^4.5.1",
+    "socket.io-client": "^4.5.1"
+  }
+}
