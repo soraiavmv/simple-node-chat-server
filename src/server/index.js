@@ -1,16 +1,17 @@
 import http from 'http';
 import { Server } from 'socket.io';
-import { usernames } from './util.js';
 import chalk from 'chalk';
 
-const start = () => {
+const MAX_USERS = 10;
+
+const start = async () => {
   const server = http.createServer();
   const serverSocket = new Server(server);
   const users = new Map();
 
   serverSocket
-    .on('connection', (socket) => {
-      dealWithClientConnection(socket, users);
+    .on('connection', async (socket) => {
+      await dealWithClientConnection(socket, users);
     });
 
   server.listen(8000, () => {
@@ -18,8 +19,8 @@ const start = () => {
   });
 }
 
-const dealWithClientConnection = (socket, users) => {
-  const name = checkForAvailableUsername(users);
+const dealWithClientConnection = async (socket, users) => {
+  const name = await checkForServerAvailability(socket, users);
 
   if (!name) {
     socket.emit('server-message', chalk.yellow('Server is full. Please try again later.'));
@@ -28,10 +29,9 @@ const dealWithClientConnection = (socket, users) => {
   }
 
   users.set(name, socket);
-
   socket.emit(
     'server-message',
-    chalk.yellow(`Server: Welcome to the anonymity chat! We'll call you ${chalk.bold(name)}.`)
+    chalk.yellow(`Welcome to this dull chat! We'll call you ${chalk.bold(name)}.`)
   );
 
   socket.broadcast.emit('server-message', chalk.yellow(`${name} joined our server. Say hi!`));
@@ -39,32 +39,34 @@ const dealWithClientConnection = (socket, users) => {
   listenForClientMessages(socket, name);
 }
 
-const checkForAvailableUsername = (users) => {
-  if (users.size === usernames.length) {
+const checkForServerAvailability = async (socket, users) => {
+  if (users.size === MAX_USERS) {
     return null;
   }
 
-  return usernames.find(name => !users.has(name));
+  socket.emit('username-message', chalk.yellow('What should we call you here?'));
+  const username = await new Promise((resolve) => socket.on('username', resolve));
+  return username;
 }
 
 const listenForClientMessages = (socket, name) => {
   socket
     .on('message', (message) => socket.broadcast.emit('user-message', chalk.cyan(`${name}: ${message}`)))
-    .on('error', (err) => disconnect(socket, name, err))
-    .on('disconnect', () => alertLossOfConnection(socket, name));
+    .on('error', (err) => disconnect(socket, name, users, err))
+    .on('disconnect', () => alertLossOfConnection(socket, name, users));
 }
 
-const alertLossOfConnection = (socket, name) => {
-  console.log(`${name} disconnected.`)
-  socket.broadcast.emit('server-message', chalk.yellow(`${name} disconnected.`))
-}
-
-const disconnect = (socket, name, err) => {
-  console.log(`${err} in ${name}'s connection. Disconnecting user...`)
-  socket.disconnect();
+const alertLossOfConnection = (socket, name, users) => {
   users.delete(name);
-  alertLossOfConnection(socket, name);
+  console.log(`${name} disconnected.`);
+  socket.broadcast.emit('server-message', chalk.yellow(`${name} disconnected.`));
+}
+
+const disconnect = (socket, name, users, err) => {
+  console.log(`${err} in ${name}'s connection. Disconnecting user...`);
+  socket.disconnect();
+  alertLossOfConnection(socket, name, users);
 }
 
 
-start();
+void start().catch(console.err);

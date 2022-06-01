@@ -5,16 +5,16 @@ import chalk from 'chalk';
 const socket = io('http://localhost:8000');
 const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
 
-const sendMessage = () => {
+const sendMessage = (username) => {
   rl.question('', (reply) => {
-    socket.emit('message', reply);
+    console.log(username);
+    socket.emit(username ? 'username' : 'message', reply);
     sendMessage();
   });
 }
 
 socket.on('connect', () => {
   console.log(chalk.green('Sucessfully connected to server.'));
-  sendMessage();
 });
 
 socket.on('connect_error', (err) => {
@@ -25,3 +25,7 @@ socket.on('connect_error', (err) => {
 socket.on('disconnect', () => rl.close());
 socket.on('server-message', (msg) => console.log(msg));
 socket.on('user-message', (msg) => console.log(msg));
+socket.on('username-message', (msg) => {
+  console.log(msg);
+  sendMessage('username');
+})
