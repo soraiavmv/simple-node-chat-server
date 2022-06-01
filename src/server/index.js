@@ -36,7 +36,7 @@ const dealWithClientConnection = async (socket, users) => {
 
   socket.broadcast.emit('server-message', chalk.yellow(`${name} joined our server. Say hi!`));
 
-  listenForClientMessages(socket, name);
+  listenForClientMessages(socket, name, users);
 }
 
 const checkForServerAvailability = async (socket, users) => {
@@ -49,7 +49,7 @@ const checkForServerAvailability = async (socket, users) => {
   return username;
 }
 
-const listenForClientMessages = (socket, name) => {
+const listenForClientMessages = (socket, name, users) => {
   socket
     .on('message', (message) => socket.broadcast.emit('user-message', chalk.cyan(`${name}: ${message}`)))
     .on('error', (err) => disconnect(socket, name, users, err))

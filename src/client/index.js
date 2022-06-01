@@ -7,7 +7,6 @@ const rl = readline.createInterface({ input: process.stdin, output: process.stdo
 
 const sendMessage = (username) => {
   rl.question('', (reply) => {
-    console.log(username);
     socket.emit(username ? 'username' : 'message', reply);
     sendMessage();
   });
