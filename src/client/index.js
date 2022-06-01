@@ -18,12 +18,10 @@ socket.on('connect', () => {
 });
 
 socket.on('connect_error', (err) => {
-  console.log(chalk.red(`connect_error due to ${err.message}`));
+  console.log(chalk.red(`connection error due to ${err.message}`));
   rl.close();
 });
 
 socket.on('disconnect', () => rl.close());
-
-socket.on('server-message', (msg) => {
-  console.log(`Server says: ${msg}`);
-});
+socket.on('server-message', (msg) => console.log(msg));
+socket.on('user-message', (msg) => console.log(msg));
