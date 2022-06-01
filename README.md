@@ -16,6 +16,6 @@ You can build your own client if you want to, but if you just want to try it, a 
 # to run the server
 node src/server/index.js
 
-# to run the client; you can run as many instances as you need
+# to run the client; the server can accept a maximum of 10 client connections
 node src/server/index.js
 ```
