@@ -25,5 +25,5 @@ socket.on('connect_error', (err) => {
 socket.on('disconnect', () => rl.close());
 
 socket.on('server-message', (msg) => {
-  console.log(chalk.yellow(`Server says: ${msg}`))
+  console.log(`Server says: ${msg}`);
 });
