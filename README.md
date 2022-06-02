@@ -14,8 +14,8 @@ You can build your own client if you want to, but if you just want to try it, a 
 
 ```bash
 # to run the server
-node src/server/index.js
+yarn server
 
 # to run the client; the server can accept a maximum of 10 client connections
-node src/server/index.js
+yarn client
 ```
